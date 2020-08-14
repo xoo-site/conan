@@ -1,4 +1,4 @@
 
 
-基于docker容器构建之后，将会生成一个QCSS-{VERSION}.tar.gz压缩包存放在release中
+基于docker容器构建之后，将会生成一个conan-{VERSION}.tar.gz压缩包存放在release中
 

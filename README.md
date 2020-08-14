@@ -15,3 +15,5 @@ conan采集脚本
 
 - 运行过程中出现任意问题，请联系研发 hailong.wang@woqutech.com
 
+- 特别感谢 tian.yuan@woqutech.com 同学为本项目命名
+
