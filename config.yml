@@ -1,0 +1,89 @@
+# coding=utf-8
+# config for script running
+
+# ==================================此部分配置请根据实际情况运行前配置=========================================
+
+# 是否开启调试模式(输出更加详细): True | False
+debug: True
+
+# 集群(QPlus) ssh 端口
+ssh_port: 22
+
+# 订单号
+order: WQXSDD-2020-000
+
+# 是否属于沃趣维保: True | False
+is_woqu_maintenance: False
+
+# 客户业务系统
+system: "xx客户xx系统"
+
+# 是否随服务器采购: True | False
+is_produced_by_server: False
+
+# 是否采集ib交换机信息: True | False
+# 不采集则无需修改下方交换机的iDRAC信息
+is_collect_switch: False
+
+switch:
+  # 交换机1的管理ip和帐密信息
+  - ip: 10.10.10.10
+    port: 22
+    username: admin
+    password: 123456
+  # 交换机2的管理ip和帐密信息
+  - ip: 20.20.20.20
+    port: 22
+    username: admin
+    password: 123456
+
+
+# ==================================此部分配置为脚本所有用到的命令,一般无需修改=========================================
+
+commands:
+  # ProInfo
+  qdatamgr_conf_show_s: "/usr/local/bin/api-qdatamgr conf show -s"
+  zstack_cli_license: "zstack-cli 'GetQLisenceInfo'"
+  product_version: "cat /etc/version.cfg |grep QData_version|awk -F '=' '{print $NF}'"
+  qplus_version: "cat /etc/QPLUS_VERSION |head -n 1"
+  # Node
+  node_sn: "dmidecode -t 1|grep Serial|awk -F':' '{print $NF}"
+  hostname: "hostname"
+  node_brand: "dmidecode -t 1|grep Manufacturer|awk -F ':' '{print $NF}'"
+  node_model: "dmidecode -t 1|grep Product|awk -F ':' '{print $NF}'"
+  raid_driver: "modinfo megaraid_sas|grep ^version|awk '{print $NF}'"
+  ib_driver: "ibstat |grep -i 'Firmware version:'|head -n 1|awk -F ':' '{print $NF}'"
+  cpu_model: "cat /proc/cpuinfo |grep model|sort -n|uniq -c|grep name|awk -F':' '{print $2}'"
+  cpu_num: "cat /proc/cpuinfo |grep 'physical id'|sort |uniq|wc -l"
+  memory_size: "free -g|grep Mem|awk '{print $2}'"
+  memory_num: "dmidecode|grep -A5 'Memory Device'|grep Size|grep -v Range|grep -v No|wc -l"
+  # Software
+  software_sn: "cat /usr/local/sendoh/conf/qlink.sn"
+  # DiskOutput
+  qplus_disk_output: "/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aAll |grep 'Inquiry'|awk -F ':' '{print $NF}'"
+  qdata_disk_output: "MegaCli -PDList -aAll |grep 'Inquiry'|awk -F ':' '{print $NF}'"
+  # Hardware
+  # HDD&SSD
+  qdatamgr_media_show_disk_p: "/usr/local/bin/api-qdatamgr media show_disk -p"
+  qdatamgr_collect_disk_info_i: "/usr/local/bin/api-qdatamgr collect disk_info -i"
+  qdata_megacli_bin: "MegaCli"
+  qplus_megacli_bin: "/opt/MegaRAID/MegaCli/MegaCli64"
+  pdlist_all: " -PDList -aAll"
+  # NVME
+  qdatamgr_media_show_nvme: "/usr/local/bin/api-qdatamgr media show_nvme"
+  nvme_brand: "lspci |grep -i non|awk '{print $5,$6}'|head -n 1"
+  # RAID
+  raid_num_fmt: "%s -AdpAllInfo -a%s |grep 'Serial No'|wc -l"
+  raid_product_fmt: "%s -AdpAllInfo -a%s|grep 'Product'|awk -F ':' '{print $NF}'"
+  raid_memory_size_fmt: "%s -AdpAllInfo -a%s|grep 'Memory Size'|awk -F ':' '{print $NF}'"
+  raid_battery_type_fmt: "%s -AdpBbuCmd -GetBbuStatus -a%s|grep 'BatteryType'|awk -F ':' '{print $NF}'"
+  raid_battery_num_fmt: "%s -AdpBbuCmd -GetBbuStatus -a%s|grep 'BatteryType'|wc -l"
+  raid_sn_fmt: "%s -AdpAllInfo -a%s|grep 'Serial No'|awk -F ':' '{print $NF}'"
+  raid_firmware_fmt: "%s -AdpAllInfo -a%s|grep 'FW Package Build'|awk -F ':' '{print $NF}'"
+  # HCA
+  hca_slot: "lspci |grep -i mellanox|grep -i infiniband|awk '{print $1}'"
+  hca_model: "lspci -vvv -s %s|grep 'PN'|awk -F ':' '{print $NF}'"
+  hca_sn: "lspci -vv -s %s|grep 'SN'|awk -F ':' '{print $NF}'"
+  hca_firmware: "ibv_devinfo |grep fw_ver|awk -F ':' '{print $NF}'|head -n 1"
+
+

@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  conan-conda-build:
+    # 执行如下命令，快速进入容器调试
+    # docker exec -it conan-conda-build bash
+    container_name: conan-conda-build
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 定义dns，加速容器内构建
+    dns:
+      - 223.5.5.5
+      - 223.6.6.6
+      - 114.114.114.114
+      - 8.8.8.8
+    volumes:
+      - ./release/:/conan/release/
+    network_mode: host
