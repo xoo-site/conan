@@ -7,7 +7,6 @@ __author__  = JeeysheLu <Jeeyshe@gmail.com> <https://www.lujianxin.com/> [2020/8
 
 This software is licensed to you under the MIT License. Looking forward to making it better.
 """
-import re
 
 from utils.prettytable import PrettyTable
 from utils.color import console, logger

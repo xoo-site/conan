@@ -43,11 +43,12 @@ class MegaCLIBase(object):
                 else:
                     yield line
         else:
+            cmd = " ".join(cmd)
             try:
                 _, stdout, stderr = self.ssh.exec_command(cmd, timeout=20)
             except Exception as e:
                 self.log.error(e)
-                return "{}"
+                yield "{}"
             else:
                 lines = stdout.readlines()
                 for line in lines:

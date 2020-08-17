@@ -17,7 +17,7 @@ from core.model import ProInfoSheet, NodeSheet, DiskOutputSheet, SoftwareSheet, 
 
 class BaseSerializer(object):
     # 需要导出的表, 即model.py中定义的表
-    __model__: BaseModel = None
+    __model__: BaseModel.__class__ = None
     # 需要导出的字段和表头, 为保证顺序此处必须显式指定所有要导出的字段
     # 支持动态扩展字段, 例如
     #     __fields__ = (("", "xx"),)
@@ -59,11 +59,12 @@ class BaseSerializer(object):
         row = 0
         col = 0
         for field in self.__fields__:
+            value = NA
             if field[0]:
-                sheet.write(row, col, field[0])
-            else:
-                doc = getattr(self.__model__, field[1]).__doc__
-                sheet.write(row, col, doc)
+                value = field[0]
+            elif hasattr(self.__model__, field[1]):
+                value = getattr(self.__model__, field[1]).__doc__
+            sheet.write(row, col, value)
             col += 1
 
     def write_data(self, sheet, queryset):
@@ -146,7 +147,7 @@ class HardwareSerializer(BaseSerializer):
         ("", "brand"),
         ("", "sn"),
         ("", "order"),
-        ("", "version"),
+        ("", "firmware"),
         ("", "is_produced_by_server"),
         ("", "node_sn"),
     )

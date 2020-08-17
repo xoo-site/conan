@@ -13,7 +13,7 @@ from core.settings import LOG_PATH, LOG_LEVEL, LOG_FMT, DATE_FMT
 
 logging.basicConfig(filename=LOG_PATH, level=LOG_LEVEL, format=LOG_FMT, datefmt=DATE_FMT)
 
-logger = logging.getLogger("QCSS")
+logger = logging.getLogger("conan")
 
 color_base = "%s[30;2m%s%s[1m" % (chr(27), '', chr(27)) + "%s[3%s;2m%s%s[0m" % (chr(27), '{color}', '{txt}', chr(27))
 

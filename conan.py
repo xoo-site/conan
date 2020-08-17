@@ -24,7 +24,7 @@ from utils.util import show_conf
 
 def init():
     console(LOGO, "green")
-    input("请按任意键继续...")
+    input("请按回车键继续...")
     if os.path.exists(DATABASE):
         os.remove(DATABASE)
     show_conf()

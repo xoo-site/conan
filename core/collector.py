@@ -17,7 +17,7 @@ from xlwt import Workbook
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from core.model import BaseModel, ProInfoSheet, NodeSheet, SoftwareSheet, HardwareSheet, DiskOutputSheet
-from core.model import QPLUS, open_session, STORAGE, COMPUTE, SANFREE, STANDARD, LITE, NA
+from core.model import QPLUS, open_session, STORAGE, COMPUTE, SANFREE, STANDARD, LITE, NA, yes_or_no
 from core.serializer import (BaseSerializer, ProInfoSerializer, NodeSerializer, SoftwareSerializer, HardwareSerializer,
                              DiskOutputSerializer)
 from utils.color import console, logger
@@ -75,6 +75,8 @@ class BaseCollector(object):
             else:
                 out = stdout.read()
                 err = stderr.read()
+                if isinstance(out, bytes):
+                    out = out.decode()
                 if DEBUG:
                     console(f"[stdout] {out}", "green")
                     console(f"[stderr] {err}", "yellow")
@@ -94,6 +96,8 @@ class BaseCollector(object):
             else:
                 out = f.read()
                 err = f.errors
+                if isinstance(out, bytes):
+                    out = out.decode()
                 if DEBUG:
                     console(f"[stdout] {out}", "green")
                     console(f"[stderr] {err}", "yellow")
@@ -117,6 +121,7 @@ class BaseCollector(object):
         # 入库
         instance = self.model_class(**data)
         self.session.add(instance)
+        self.session.flush()
         instance.show()
         return data
 
@@ -255,7 +260,7 @@ class NodeCollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance")
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_hostname(self):
         """节点名称"""
@@ -353,7 +358,7 @@ class DiskOutputCollector(BaseCollector):
         if self.node_type in [SANFREE, COMPUTE, STORAGE]:
             return self.exe(COMMANDS.get("qdata_disk_output")).strip()
         if self.node_type in [QPLUS]:
-            return self.exe("qplus_disk_output").strip()
+            return self.exe(COMMANDS.get("qplus_disk_output")).strip()
 
 
 class HardwareCollector(BaseCollector):
@@ -532,7 +537,12 @@ class HDDSSDCollector(BaseCollector):
         mega = MegaCLIBase(self.megacli_bin, logger, self.ssh)
         mega.run_command(COMMANDS.get("pdlist_all"))
         for controller in mega.controllers:
-            device_id = self.exe("%s -EncInfo -a%d" % (self.megacli_bin, controller.controller_number))
+            device_id = self.exe(
+                COMMANDS.get("encinfo_fmt", "%s-%d") % (
+                    self.megacli_bin,
+                    controller.controller_number
+                )
+            ).strip()
             for disk in controller.PDs:
                 # 判断为当前磁盘
                 if disk.enclosure_id == device_id and disk.slot_number == slot:
@@ -548,7 +558,7 @@ class HDDSSDCollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance")
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_model(self):
         """磁盘型号"""
@@ -597,7 +607,7 @@ class HDDSSDCollector(BaseCollector):
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", NA)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""
@@ -617,7 +627,7 @@ class SwitchCollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance")
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_model(self):
         """配件型号"""
@@ -641,7 +651,7 @@ class SwitchCollector(BaseCollector):
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", NA)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""
@@ -661,11 +671,11 @@ class NVMECollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属沃趣维保"""
-        return CONF.get("is_woqu_maintenance ", NA)
+        return yes_or_no(CONF.get("is_woqu_maintenance ", False))
 
     def get_model(self):
         """型号"""
-        for nvme in self.data.get("show_nvme", []):
+        for nvme in self.data.get("nvmes", []):
             if nvme["Node"] == self.hardware_id:
                 return nvme["Model"]
         return NA
@@ -676,7 +686,7 @@ class NVMECollector(BaseCollector):
 
     def get_sn(self):
         """配件序列号"""
-        for nvme in self.data.get("show_nvme", []):
+        for nvme in self.data.get("nvmes", []):
             if nvme["Node"] == self.hardware_id:
                 return nvme["SN"]
         return NA
@@ -687,14 +697,14 @@ class NVMECollector(BaseCollector):
 
     def get_firmware(self):
         """固件版本"""
-        for nvme in self.data.get("show_nvme", []):
+        for nvme in self.data.get("nvmes", []):
             if nvme["Node"] == self.hardware_id:
                 return nvme["FW Rev"]
         return NA
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", NA)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""
@@ -715,7 +725,7 @@ class RaidCollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance", False)
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_model(self):
         """配件型号
@@ -745,7 +755,7 @@ class RaidCollector(BaseCollector):
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", False)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""
@@ -765,7 +775,7 @@ class FlashCollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance")
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_model(self):
         """配件型号"""
@@ -789,7 +799,7 @@ class FlashCollector(BaseCollector):
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", NA)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""
@@ -809,7 +819,7 @@ class HCACollector(BaseCollector):
 
     def get_is_woqu_maintenance(self):
         """是否属于沃趣维保"""
-        return CONF.get("is_woqu_maintenance", False)
+        return yes_or_no(CONF.get("is_woqu_maintenance", False))
 
     def get_model(self):
         """配件型号"""
@@ -833,7 +843,7 @@ class HCACollector(BaseCollector):
 
     def get_is_produced_by_server(self):
         """是否随服务器采购"""
-        return CONF.get("is_produced_by_server", False)
+        return yes_or_no(CONF.get("is_produced_by_server", False))
 
     def get_node_sn(self):
         """节点序列号"""

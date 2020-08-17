@@ -43,11 +43,11 @@ switch:
 commands:
   # ProInfo
   qdatamgr_conf_show_s: "/usr/local/bin/api-qdatamgr conf show -s"
-  zstack_cli_license: "zstack-cli 'GetQLisenceInfo'"
+  zstack_cli_license: "zstack-cli 'GetQLisenceInfo'|grep -v 'format'"
   product_version: "cat /etc/version.cfg |grep QData_version|awk -F '=' '{print $NF}'"
   qplus_version: "cat /etc/QPLUS_VERSION |head -n 1"
   # Node
-  node_sn: "dmidecode -t 1|grep Serial|awk -F':' '{print $NF}"
+  node_sn: "dmidecode -t 1|grep Serial|awk -F':' '{print $NF}'"
   hostname: "hostname"
   node_brand: "dmidecode -t 1|grep Manufacturer|awk -F ':' '{print $NF}'"
   node_model: "dmidecode -t 1|grep Product|awk -F ':' '{print $NF}'"
@@ -69,6 +69,7 @@ commands:
   qdata_megacli_bin: "MegaCli"
   qplus_megacli_bin: "/opt/MegaRAID/MegaCli/MegaCli64"
   pdlist_all: " -PDList -aAll"
+  encinfo_fmt: "%s -EncInfo -a%d|grep 'Device ID'|awk '{print $NF}'"
   # NVME
   qdatamgr_media_show_nvme: "/usr/local/bin/api-qdatamgr media show_nvme"
   nvme_brand: "lspci |grep -i non|awk '{print $5,$6}'|head -n 1"

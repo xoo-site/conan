@@ -8,7 +8,6 @@ __author__  = JeeysheLu <Jeeyshe@gmail.com> <https://www.lujianxin.com/> [2020/8
 This software is licensed to you under the MIT License. Looking forward to making it better.
 """
 
-import logging
 from contextlib import contextmanager
 from collections import Iterable
 
@@ -21,8 +20,8 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from core.settings import DATABASE
 from utils.prettytable import PrettyTable
+from utils.color import logger
 
-logger = logging.getLogger(__name__)
 
 engine = create_engine("sqlite:///{0}".format(DATABASE), encoding='utf8', echo=False)
 meta_data = MetaData(bind=engine)
@@ -81,6 +80,13 @@ COMPUTE = "compute"
 STORAGE = "storage"
 SANFREE = "sanfree"
 NODE_TYPES = Enum(COMPUTE, STORAGE, SANFREE, QPLUS, NA)
+
+
+def yes_or_no(s: bool = False):
+    """
+    布尔类型的汉字转换
+    """
+    return Y if s else N
 
 
 class ProInfoSheet(BaseModel):
