@@ -15,6 +15,7 @@ import gc
 
 from xlwt import Workbook
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.inspection import inspect
 
 from core.model import BaseModel, ProInfoSheet, NodeSheet, SoftwareSheet, HardwareSheet, DiskOutputSheet
 from core.model import QPLUS, open_session, STORAGE, COMPUTE, SANFREE, STANDARD, LITE, NA, yes_or_no
@@ -110,14 +111,25 @@ class BaseCollector(object):
     def collect(self, exclude=("id",)):
         data = {}
         # 寻找实例的get_<字段名>方法进行调用获得指标值
-        for attr_name in self.model_class.__dict__:
-            cls_attr = getattr(self.model_class, attr_name)
-            condition = ((isinstance(cls_attr, InstrumentedAttribute) and (attr_name not in exclude)) if exclude
-                         else isinstance(cls_attr, InstrumentedAttribute))
-            if condition:
-                func = getattr(self, f"get_{attr_name}")
+
+        # 手动实现的找到model中所有定义的 column
+        # for attr_name in self.model_class.__dict__:
+        #     cls_attr = getattr(self.model_class, attr_name)
+        #     condition = ((isinstance(cls_attr, InstrumentedAttribute) and (attr_name not in exclude)) if exclude
+        #                  else isinstance(cls_attr, InstrumentedAttribute))
+        #     if condition:
+        #         func = getattr(self, f"get_{attr_name}")
+        #         if callable(func):
+        #             data[attr_name] = func()
+
+        # sqlalchemy 实现的寻找model中所有定义的 column
+        fields = inspect(self.model_class).columns.keys()
+        for filed in fields:
+            if filed not in exclude:
+                func = getattr(self, f"get_{filed}", None)
                 if callable(func):
-                    data[attr_name] = func()
+                    data[filed] = func()
+
         # 入库
         instance = self.model_class(**data)
         self.session.add(instance)
