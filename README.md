@@ -17,3 +17,5 @@ conan采集脚本
 
 - 特别感谢 tian.yuan@woqutech.com 同学为本项目命名
 
+
+- 建议开发者采用fork的方式更新维护代码
