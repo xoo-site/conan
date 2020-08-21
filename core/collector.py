@@ -56,7 +56,6 @@ class BaseCollector(object):
         else:
             self.megacli_bin = COMMANDS.get("qdata_megacli_bin")
 
-
     def exe(self, cmd, timeout=20):
         """
         执行命令: ssh存在则在会话执行，否则在本地执行
@@ -564,8 +563,10 @@ class HDDSSDCollector(BaseCollector):
                 )
             ).strip()
             for disk in controller.PDs:
+                logger.info(f"{disk.identifier} {device_id} {slot}")
                 # 判断为当前磁盘
-                if disk.enclosure_id == device_id and disk.slot_number == slot:
+                if int(disk.enclosure_id) == int(device_id) and int(disk.slot_number) == int(slot):
+                    logger.info(f"{self.hardware_id} find info in MegaCli")
                     return disk
         return None
 
@@ -604,6 +605,7 @@ class HDDSSDCollector(BaseCollector):
         for dev in devs:
             if self.hardware_id in devs[dev]["device_name"]:
                 return devs[dev]["serial_number"]
+        # FIXME: qdatamgr 中取不到SN怎么办?
         return NA
 
     def get_order(self):
