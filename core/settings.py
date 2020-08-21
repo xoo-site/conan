@@ -14,7 +14,7 @@ import logging
 import yaml
 
 # 当前软件版本
-VERSION = "3.3.0-dev"
+VERSION = "3.3.0"
 
 # 项目根目录
 BASE_DIR = os.getcwd()

@@ -13,7 +13,7 @@ import shutil
 
 from invoke import task
 
-__version__ = "3.3.0-dev"
+__version__ = "3.3.0"
 root = os.path.dirname(os.path.abspath(__file__))
 release = os.path.join(root, f"release/conan-{__version__}.tar.gz")
 
