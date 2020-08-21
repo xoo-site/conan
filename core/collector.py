@@ -55,13 +55,7 @@ class BaseCollector(object):
             self.megacli_bin = COMMANDS.get("qplus_megacli_bin")
         else:
             self.megacli_bin = COMMANDS.get("qdata_megacli_bin")
-        if self.ip:
-            if self.hardware_id:
-                console(f"Host {self.ip} {self.__class__.__name__} Hardware[{self.hardware_id}]".center(80, "="))
-            else:
-                console(f"Host {self.ip} {self.__class__.__name__} Collect".center(80, "="))
-        else:
-            console(f"Local Host {self.__class__.__name__} Collect".center(80, "="))
+
 
     def exe(self, cmd, timeout=20):
         """
@@ -116,6 +110,13 @@ class BaseCollector(object):
                 return out
 
     def collect(self, exclude=("id",)):
+        if self.ip:
+            if self.hardware_id:
+                console(f"Host {self.ip} {self.__class__.__name__} Hardware[{self.hardware_id}]".center(80, "="))
+            else:
+                console(f"Host {self.ip} {self.__class__.__name__} Collect".center(80, "="))
+        else:
+            console(f"Local Host {self.__class__.__name__} Collect".center(80, "="))
         data = {}
         # 寻找实例的get_<字段名>方法进行调用获得指标值
 

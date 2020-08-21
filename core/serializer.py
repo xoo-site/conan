@@ -28,7 +28,6 @@ class BaseSerializer(object):
 
     def __init__(self, book: Workbook):
         self.book = book  # 从外部传过来的工作簿
-        console(f"Model {self.__model__.__class__.__name__} excel making".center(80, "="))
 
     def get_sheet(self):
         """
@@ -95,6 +94,7 @@ class BaseSerializer(object):
         """
         导出的具体实现
         """
+        console(f"Model {self.__model__.__class__.__name__} excel making".center(80, "="))
         sheet = self.get_sheet()
         queryset = self.get_queryset()
         self.write_title(sheet)
