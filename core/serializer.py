@@ -13,6 +13,7 @@ from xlwt import Workbook
 
 from core.model import BaseModel, get_session, NA
 from core.model import ProInfoSheet, NodeSheet, DiskOutputSheet, SoftwareSheet, HardwareSheet
+from utils.color import console
 
 
 class BaseSerializer(object):
@@ -27,6 +28,7 @@ class BaseSerializer(object):
 
     def __init__(self, book: Workbook):
         self.book = book  # 从外部传过来的工作簿
+        console(f"Model {self.__model__.__class__.__name__} excel making".center(80, "="))
 
     def get_sheet(self):
         """

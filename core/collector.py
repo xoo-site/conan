@@ -55,6 +55,13 @@ class BaseCollector(object):
             self.megacli_bin = COMMANDS.get("qplus_megacli_bin")
         else:
             self.megacli_bin = COMMANDS.get("qdata_megacli_bin")
+        if self.ip:
+            if self.hardware_id:
+                console(f"Host {self.ip} {self.__class__.__name__} Hardware[{self.hardware_id}]".center(80, "="))
+            else:
+                console(f"Host {self.ip} {self.__class__.__name__} Collect".center(80, "="))
+        else:
+            console(f"Local Host {self.__class__.__name__} Collect".center(80, "="))
 
     def exe(self, cmd, timeout=20):
         """
@@ -612,6 +619,7 @@ class HDDSSDCollector(BaseCollector):
                 break
         if not firmware:
             # 尝试从MegaCli获取
+            logger.info("Try to find firmware in Megacli output.")
             disk = self.get_disk_by_device_num()
             if disk:
                 return disk.props.get("Device Firmware Level", NA)

@@ -32,7 +32,7 @@ CONF = yaml.safe_load(open(CONF_PATH))
 DEBUG = CONF.get("debug", True)
 
 # 日志级别
-LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO
+LOG_LEVEL = logging.INFO
 
 # 日志保存格式
 LOG_FMT = '[%(name)s %(levelname)s %(asctime)s %(module)s:%(lineno)d] %(message)s'
