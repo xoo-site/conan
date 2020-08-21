@@ -94,7 +94,7 @@ class BaseSerializer(object):
         """
         导出的具体实现
         """
-        console(f"Model {self.__model__.__class__.__name__} excel making".center(80, "="))
+        console(f"Model {self.__class__.__name__} excel making".center(80, "="))
         sheet = self.get_sheet()
         queryset = self.get_queryset()
         self.write_title(sheet)
