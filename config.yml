@@ -82,7 +82,7 @@ commands:
   raid_sn_fmt: "%s -AdpAllInfo -a%s|grep 'Serial No'|awk -F ':' '{print $NF}'"
   raid_firmware_fmt: "%s -AdpAllInfo -a%s|grep 'FW Package Build'|awk -F ':' '{print $NF}'"
   # HCA
-  hca_slot: "lspci |grep -i mellanox|grep -i infiniband|awk '{print $1}'"
+  hca_slot: "lspci |grep -i mellanox|grep -i infiniband|awk '{print $1}'|uniq"
   hca_model: "lspci -vvv -s %s|grep 'PN'|awk -F ':' '{print $NF}'"
   hca_sn: "lspci -vv -s %s|grep 'SN'|awk -F ':' '{print $NF}'"
   hca_firmware: "ibv_devinfo |grep fw_ver|awk -F ':' '{print $NF}'|head -n 1"
